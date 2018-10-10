@@ -9,7 +9,9 @@
   "env": {
     "googleappsscript/googleappsscript": true
   },
-  "globals": {},
+  "globals": {
+    "VisualizationAPIClient": false
+  },
   "rules": {
     "semi": "warn",
     "quotes": ["warn", "single"],
