@@ -12,21 +12,17 @@
     }
 
     VisualizationAPIClient.prototype.getData = function (sheetName, options) {
-      var params = [];
-      options['sheet'] = sheetName;
-      for (var key in options) {
-        params.push(Utilities.formatString('%s=%s', key, options[key]));
-      }
-      return this.fetch_(params.join('&'));
+      var params = options || {};
+      params['sheet'] = sheetName;
+
+      return this.fetch_(this.createUrlParam_(params));
     };
 
     VisualizationAPIClient.prototype.getDataObject = function (sheetName, options) {
-      var params = [];
-      options['sheet'] = sheetName;
-      for (var key in options) {
-        params.push(Utilities.formatString('%s=%s', key, options[key]));
-      }
-      var parsedContent = JSON.parse(this.fetch_(params.join('&')));
+      var params = options || {};
+      params['sheet'] = sheetName;
+
+      var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
       var resultObject = [];
       for (var r = 0; r < parsedContent.table.rows.length; r++) {
         var row = {};
@@ -56,6 +52,51 @@
         resultObject.push(row);
       }
       return resultObject;
+    };
+
+    VisualizationAPIClient.prototype.getDataArray = function (sheetName, options) {
+      var params = options || {};
+      params['sheet'] = sheetName;
+
+      var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
+      var resultArray = [];
+      for (var r = 0; r < parsedContent.table.rows.length; r++) {
+        var row = [];
+        for (var c = 0; c < parsedContent.table.cols.length; c++) {
+          //ヘッダ行のラベルがない場合はスキップ
+          if (parsedContent.table.cols[c].label == '') {
+            continue;
+          }
+          //値がnullの場合は、空文字を設定
+          if (parsedContent.table.rows[r].c[c] == null) {
+            row.push('');
+            continue;
+          }
+
+          switch (parsedContent.table.cols[c].type) {
+          case 'date':
+          case 'timeofday':
+          case 'datetime':
+            row.push(parsedContent.table.rows[r].c[c].f);
+            break;
+
+          default:
+            row.push(parsedContent.table.rows[r].c[c].v);
+            break;
+          }
+        }
+        resultArray.push(row);
+      }
+      return resultArray;
+    };
+
+    VisualizationAPIClient.prototype.createUrlParam_ = function (options) {
+      var params = [];
+      for (var key in options) {
+        params.push(Utilities.formatString('%s=%s', key, options[key]));
+      }
+
+      return params.join('&');
     };
 
     VisualizationAPIClient.prototype.fetch_ = function (endPoint) {
