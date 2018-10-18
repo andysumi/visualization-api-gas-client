@@ -11,16 +11,18 @@
       if (!fileId) throw new Error('"fileId"は必須です');
     }
 
-    VisualizationAPIClient.prototype.getData = function (sheetName, options) {
+    VisualizationAPIClient.prototype.getData = function (sheetName, query, options) {
       var params = options || {};
-      params['sheet'] = sheetName;
+      if (sheetName) params['sheet'] = sheetName;
+      if (query) params['tq'] = encodeURIComponent(query);
 
       return this.fetch_(this.createUrlParam_(params));
     };
 
-    VisualizationAPIClient.prototype.getDataObject = function (sheetName, options) {
+    VisualizationAPIClient.prototype.getDataObject = function (sheetName, query, options) {
       var params = options || {};
-      params['sheet'] = sheetName;
+      if (sheetName) params['sheet'] = sheetName;
+      if (query) params['tq'] = encodeURIComponent(query);
 
       var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
       var resultObject = [];
@@ -54,9 +56,10 @@
       return resultObject;
     };
 
-    VisualizationAPIClient.prototype.getDataArray = function (sheetName, options) {
+    VisualizationAPIClient.prototype.getDataArray = function (sheetName, query, options) {
       var params = options || {};
-      params['sheet'] = sheetName;
+      if (sheetName) params['sheet'] = sheetName;
+      if (query) params['tq'] = encodeURIComponent(query);
 
       var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
       var resultArray = [];
