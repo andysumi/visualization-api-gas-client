@@ -25,12 +25,8 @@ jobs:
         run: npm ci
       - name: Run lint check
         run: npm test
-
-  notify:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: 8398a7/action-slack@v3
+      - name: Notify slack of CI results
+        uses: 8398a7/action-slack@v3
         with:
           status: ${{ job.status }}
           author_name: ${{ github.workflow }}
