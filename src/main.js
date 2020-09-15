@@ -1,7 +1,7 @@
 /**
  * Google Visualization API Clientのインスタンスを作成する
  * @param {String} token 【必須】APIアクセストークン
- * @param {Integer} fileId 【任意】スプレッドシートのID
+ * @param {String} fileId 【必須】スプレッドシートのID
  * @return {VisualizationAPIClient} Google Visualization API Clientのインスタンス
  */
 function create(token, fileId) { //eslint-disable-line no-unused-vars
