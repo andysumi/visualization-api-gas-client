@@ -25,6 +25,21 @@ jobs:
         run: npm ci
       - name: Run lint check
         run: npm test
+      - name: Notify slack of CI results
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ github.workflow }}
+          username: 'Github Actions'
+          icon_emoji: ':githubalt:'
+          channel: '#github_notify'
+          mention: here
+          if_mention: failure,cancelled
+          text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: failure(), cancelled()
 
   deploy:
     needs: test
@@ -50,11 +65,6 @@ jobs:
         run: |
           change_log=$(tail -1 version_history | sed -e "s/^[0-9]*[[:blank:]]-[[:blank:]]\(.*\)$/\1/g")
           npx @google/clasp version ${change_log}
-
-  notify:
-    needs: deploy
-    runs-on: ubuntu-latest
-    steps:
       - name: Notify slack of CI results
         uses: 8398a7/action-slack@v3
         with:
