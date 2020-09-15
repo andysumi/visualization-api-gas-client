@@ -11,12 +11,16 @@
       if (!fileId) throw new Error('"fileId"は必須です');
     }
 
-    VisualizationAPIClient.prototype.getData = function (sheetName, query, options) {
-      var params = options || {};
-      if (sheetName) params['sheet'] = sheetName;
-      if (query) params['tq'] = encodeURIComponent(query);
+    VisualizationAPIClient.prototype.getDataJson = function (sheetId, query, headers, range) {
+      if (sheetId === undefined) throw new Error('"sheetId"は必須です');
 
-      return this.fetch_(this.createUrlParam_(params));
+      var params = {};
+      if (sheetId) params['gid']     = sheetId;
+      if (query)   params['tq']      = encodeURIComponent(query);
+      if (headers) params['headers'] = headers;
+      if (range)   params['range']   = range;
+
+      return this.fetch_(this.buildUrlParam_(params));
     };
 
     VisualizationAPIClient.prototype.getDataObject = function (sheetName, query, options) {
@@ -93,7 +97,7 @@
       return resultArray;
     };
 
-    VisualizationAPIClient.prototype.createUrlParam_ = function (options) {
+    VisualizationAPIClient.prototype.buildUrlParam_ = function (options) {
       var params = [];
       for (var key in options) {
         params.push(Utilities.formatString('%s=%s', key, options[key]));

@@ -9,6 +9,7 @@ function TestRunner() { // eslint-disable-line no-unused-vars
   try {
     /***** Test cases ******************************/
     testCreate_(test, common);
+    testGetDataJson_(test, common);
     /***********************************************/
   } catch (err) {
     test('Exception occurred', function f(assert) {
@@ -37,8 +38,33 @@ function testCreate_(test, common) {
     t.deepEqual(result.headers, { Authorization: 'Bearer ' + token }, '"headers"が正しいこと');
   });
 
-  test('create() - 正常系', function (t) {
+  test('create() - 異常系', function (t) {
     t.throws(function () { return new VisualizationAPIClient(); }, '"token"を指定していない場合はエラー');
     t.throws(function () { return new VisualizationAPIClient(token); }, '"fileId"を指定していない場合はエラー');
+  });
+}
+
+function testGetDataJson_(test, common) {
+  var client = common.getClient();
+  var sheet = common.getSheet();
+  var columns = common.getColumns();
+
+  test('getDataJson() - query指定なし', function (t) {
+    var result = JSON.parse(client.getDataJson(sheet.getSheetId()));
+    t.equal(result.status, 'ok', '"status"が正しいこと');
+    t.deepEqual(result.table.cols, columns, '"table.cols"が正しいこと');
+    t.equal(result.table.rows.length, 47, '取得したデータの件数が正しいこと');
+  });
+
+  test('getDataJson() - query指定あり', function (t) {
+    var query = 'SELECT * WHERE C >= 5000000 ORDER BY C';
+    var result = JSON.parse(client.getDataJson(sheet.getSheetId(), query, 1));
+    t.equal(result.status, 'ok', '"status"が正しいこと');
+    t.deepEqual(result.table.cols, columns, '"table.cols"が正しいこと');
+    t.equal(result.table.rows.length, 9, '取得したデータの件数が正しいこと');
+  });
+
+  test('getDataJson() - 異常系', function (t) {
+    t.throws(function () { client.getDataJson(); }, '"sheetId"を指定していない場合はエラー');
   });
 }
