@@ -9,8 +9,9 @@ function TestRunner() { // eslint-disable-line no-unused-vars
   try {
     /***** Test cases ******************************/
     testCreate_(test, common);
-    testGetDataJson_(test, common);
-    testGetDataObject_(test, common);
+    testGetRawData_(test, common);
+    testGetDataConvertedObject_(test, common);
+    testGetDataConvertedArray_(test, common);
     /***********************************************/
   } catch (err) {
     test('Exception occurred', function f(assert) {
@@ -45,56 +46,84 @@ function testCreate_(test, common) {
   });
 }
 
-function testGetDataJson_(test, common) {
+function testGetRawData_(test, common) {
   var client = common.getClient();
   var sheet = common.getSheet();
   var columns = common.getColumns();
 
-  test('getDataJson() - query指定なし', function (t) {
-    var result = JSON.parse(client.getDataJson(sheet.getSheetId()));
+  test('getRawData() - query指定なし', function (t) {
+    var result = JSON.parse(client.getRawData(sheet.getSheetId()));
     t.equal(result.status, 'ok', '"status"が正しいこと');
     t.deepEqual(result.table.cols, columns, '"table.cols"が正しいこと');
     t.equal(result.table.rows.length, 47, '取得したデータの件数が正しいこと');
   });
 
-  test('getDataJson() - query指定あり', function (t) {
+  test('getRawData() - query指定あり', function (t) {
     var query = 'SELECT * WHERE C >= 5000000 ORDER BY C';
-    var result = JSON.parse(client.getDataJson(sheet.getSheetId(), query, 1));
+    var result = JSON.parse(client.getRawData(sheet.getSheetId(), query, 1));
     t.equal(result.status, 'ok', '"status"が正しいこと');
     t.deepEqual(result.table.cols, columns, '"table.cols"が正しいこと');
     t.equal(result.table.rows.length, 9, '取得したデータの件数が正しいこと');
   });
 
-  test('getDataJson() - 異常系', function (t) {
-    t.throws(function () { client.getDataJson(); }, '"sheetId"を指定していない場合はエラー');
+  test('getRawData() - 異常系', function (t) {
+    t.throws(function () { client.getRawData(); }, '"sheetId"を指定していない場合はエラー');
   });
 }
 
-function testGetDataObject_(test, common) {
+function testGetDataConvertedObject_(test, common) {
   var client = common.getClient();
   var sheet = common.getSheet();
   var columns = common.getColumns();
 
-  test('getDataObject() - query指定なし', function (t) {
-    var result = client.getDataObject(sheet.getSheetId());
+  test('getDataConvertedObject() - query指定なし', function (t) {
+    var result = client.getDataConvertedObject(sheet.getSheetId());
     t.equal(result.length, 47, '取得したデータの件数が正しいこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[0].label), '"都道府県"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[1].label), '"人口(平成22年)"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[2].label), '"人口(平成27年)"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[3].label), '"人口増加率"を含むこと');
+    t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[4].label), '"更新日"を含むこと');
   });
 
-  test('getDataObject() - query指定あり', function (t) {
+  test('getDataConvertedObject() - query指定あり', function (t) {
     var query = 'SELECT * WHERE A = \'北海道\'';
-    var result = client.getDataObject(sheet.getSheetId(), query, 1);
+    var result = client.getDataConvertedObject(sheet.getSheetId(), query, 1);
     t.equal(result.length, 1, '取得したデータの件数が正しいこと');
     t.equal(result[0][columns[0].label], '北海道', '"都道府県"が正しいこと');
     t.equal(result[0][columns[1].label], 5506000, '"人口(平成22年)"が正しいこと');
     t.equal(result[0][columns[2].label], 5382000, '"人口(平成27年)"が正しいこと');
     t.equal(result[0][columns[3].label], -0.022520886305848142, '"人口増加率"が正しいこと');
+    t.equal(result[0][columns[4].label], '2020/09/15 0:00:00', '"更新日"が正しいこと');
   });
 
-  test('getDataObject() - 異常系', function (t) {
-    t.throws(function () { client.getDataObject(); }, '"sheetId"を指定していない場合はエラー');
+  test('getDataConvertedObject() - 異常系', function (t) {
+    t.throws(function () { client.getDataConvertedObject(); }, '"sheetId"を指定していない場合はエラー');
+  });
+}
+
+function testGetDataConvertedArray_(test, common) {
+  var client = common.getClient();
+  var sheet = common.getSheet();
+  var columns = common.getColumns();
+
+  test('getDataConvertedArray() - query指定なし', function (t) {
+    var result = client.getDataConvertedArray(sheet.getSheetId());
+    t.equal(result.length, 47, '取得したデータの件数が正しいこと');
+    t.equal(result[0].length, columns.length, 'ヘッダーの項目数が正しいこと');
+  });
+
+  test('getDataConvertedArray() - query指定あり', function (t) {
+    var query = 'SELECT * WHERE E >= datetime \'2020-09-16 00:00:00\'';
+    var result = client.getDataConvertedArray(sheet.getSheetId(), query, 1);
+    t.equal(result.length, 1, '取得したデータの件数が正しいこと');
+    t.equal(result[0][0], '沖縄', '"都道府県"が正しいこと');
+    t.equal(result[0][1], 1393000, '"人口(平成22年)"が正しいこと');
+    t.equal(result[0][2], 1434000, '"人口(平成27年)"が正しいこと');
+    t.equal(result[0][3], 0.02943287867910982, '"人口増加率"が正しいこと');
+  });
+
+  test('getDataConvertedArray() - 異常系', function (t) {
+    t.throws(function () { client.getDataConvertedArray(); }, '"sheetId"を指定していない場合はエラー');
   });
 }

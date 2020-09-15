@@ -6,9 +6,10 @@ TestCommon = function () {
   this.sheet_ = this.file_.getSheetByName('sheet1');
   this.columns_ = [
     { id: 'A', label: '都道府県',       type: 'string' },
-    { id: 'B', label: '人口(平成22年)', type: 'number', pattern: '#,##0' },
-    { id: 'C', label: '人口(平成27年)', type: 'number', pattern: '#,##0' },
-    { id: 'D', label: '人口増加率',     type: 'number', pattern: '0.00%' }
+    { id: 'B', label: '人口(平成22年)', type: 'number',   pattern: '#,##0' },
+    { id: 'C', label: '人口(平成27年)', type: 'number',   pattern: '#,##0' },
+    { id: 'D', label: '人口増加率',     type: 'number',   pattern: '0.00%' },
+    { id: 'E', label: '更新日',         type: 'datetime', pattern: 'yyyy/MM/dd H:mm:ss' }
   ];
 
   this.client = new VisualizationAPIClient(ScriptApp.getOAuthToken(), this.file_.getId());
