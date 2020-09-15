@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "eslint src test -c .eslintrc.json"
   },
   "repository": {
     "type": "git",
@@ -17,9 +17,10 @@
     "url": "https://github.com/andysumi/visualization-api-gas-client/issues"
   },
   "homepage": "https://github.com/andysumi/visualization-api-gas-client#readme",
-  "dependencies": {
-    "@google/clasp": "^1.6.3",
-    "eslint": "^5.6.1",
-    "eslint-plugin-googleappsscript": "^1.0.1"
+  "dependencies": {},
+  "devDependencies": {
+    "@google/clasp": "^2.3.0",
+    "eslint": "^7.9.0",
+    "eslint-plugin-googleappsscript": "^1.0.3"
   }
 }

@@ -11,89 +11,72 @@
       if (!fileId) throw new Error('"fileId"は必須です');
     }
 
-    VisualizationAPIClient.prototype.getData = function (sheetName, query, options) {
-      var params = options || {};
-      if (sheetName) params['sheet'] = sheetName;
-      if (query) params['tq'] = encodeURIComponent(query);
+    VisualizationAPIClient.prototype.getRawData = function (sheetId, query, headers, range) {
+      if (sheetId === undefined) throw new Error('"sheetId"は必須です');
 
-      return this.fetch_(this.createUrlParam_(params));
+      var params = {};
+      if (sheetId) params['gid']     = sheetId;
+      if (query)   params['tq']      = encodeURIComponent(query);
+      if (headers) params['headers'] = headers;
+      if (range)   params['range']   = range;
+
+      return this.fetch_(this.buildUrlParam_(params));
     };
 
-    VisualizationAPIClient.prototype.getDataObject = function (sheetName, query, options) {
-      var params = options || {};
-      if (sheetName) params['sheet'] = sheetName;
+    VisualizationAPIClient.prototype.getDataConvertedObject = function (sheetId, query, headers, range) {
+      if (sheetId === undefined) throw new Error('"sheetId"は必須です');
+
+      var params = {};
+      if (sheetId) params['gid'] = sheetId;
       if (query) params['tq'] = encodeURIComponent(query);
+      if (headers) params['headers'] = headers;
+      if (range) params['range'] = range;
 
-      var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
-      var resultObject = [];
-      for (var r = 0; r < parsedContent.table.rows.length; r++) {
-        var row = {};
-        for (var c = 0; c < parsedContent.table.cols.length; c++) {
-          //ヘッダ行のラベルがない場合はスキップ
-          if (parsedContent.table.cols[c].label == '') {
-            continue;
-          }
-          //値がnullの場合は、空文字を設定
-          if (parsedContent.table.rows[r].c[c] == null) {
-            row[parsedContent.table.cols[c].label] = '';
-            continue;
-          }
-
-          switch (parsedContent.table.cols[c].type) {
+      var parsedContents = JSON.parse(this.fetch_(this.buildUrlParam_(params)));
+      return parsedContents.table.rows.map(function (row) {
+        var temp = {};
+        row.c.forEach(function (column, index) {
+          var label = this[index]['label'] || this[index]['id'];
+          switch (this[index]['type']) {
           case 'date':
           case 'timeofday':
           case 'datetime':
-            row[parsedContent.table.cols[c].label] = parsedContent.table.rows[r].c[c].f;
+            temp[label] = column.f;
             break;
-
           default:
-            row[parsedContent.table.cols[c].label] = parsedContent.table.rows[r].c[c].v;
+            temp[label] = column.v;
             break;
           }
-        }
-        resultObject.push(row);
-      }
-      return resultObject;
+        }, this);
+        return temp;
+      }, parsedContents.table.cols);
     };
 
-    VisualizationAPIClient.prototype.getDataArray = function (sheetName, query, options) {
-      var params = options || {};
-      if (sheetName) params['sheet'] = sheetName;
+    VisualizationAPIClient.prototype.getDataConvertedArray = function (sheetId, query, headers, range) {
+      if (sheetId === undefined) throw new Error('"sheetId"は必須です');
+
+      var params = {};
+      if (sheetId) params['gid'] = sheetId;
       if (query) params['tq'] = encodeURIComponent(query);
+      if (headers) params['headers'] = headers;
+      if (range) params['range'] = range;
 
-      var parsedContent = JSON.parse(this.fetch_(this.createUrlParam_(params)));
-      var resultArray = [];
-      for (var r = 0; r < parsedContent.table.rows.length; r++) {
-        var row = [];
-        for (var c = 0; c < parsedContent.table.cols.length; c++) {
-          //ヘッダ行のラベルがない場合はスキップ
-          if (parsedContent.table.cols[c].label == '') {
-            continue;
-          }
-          //値がnullの場合は、空文字を設定
-          if (parsedContent.table.rows[r].c[c] == null) {
-            row.push('');
-            continue;
-          }
-
-          switch (parsedContent.table.cols[c].type) {
+      var parsedContents = JSON.parse(this.fetch_(this.buildUrlParam_(params)));
+      return parsedContents.table.rows.map(function (row) {
+        return row.c.map(function (column, index) {
+          switch (this[index]['type']) {
           case 'date':
           case 'timeofday':
           case 'datetime':
-            row.push(parsedContent.table.rows[r].c[c].f);
-            break;
-
+            return column.f;
           default:
-            row.push(parsedContent.table.rows[r].c[c].v);
-            break;
+            return column.v;
           }
-        }
-        resultArray.push(row);
-      }
-      return resultArray;
+        }, this);
+      }, parsedContents.table.cols);
     };
 
-    VisualizationAPIClient.prototype.createUrlParam_ = function (options) {
+    VisualizationAPIClient.prototype.buildUrlParam_ = function (options) {
       var params = [];
       for (var key in options) {
         params.push(Utilities.formatString('%s=%s', key, options[key]));

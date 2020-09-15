@@ -1,0 +1,85 @@
+name: Deploy production
+
+on:
+  push:
+    tags:
+      - 'v.*'
+
+env:
+  SLACK_CHANNEL: '#github_notify'
+  SLACK_USERNAME: 'Github Actions'
+  SLACK_ICON_EMOJI: ':github:'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Node Version
+        run: |
+          echo "Node $(node -v)"
+          echo "Npm $(npm -v)"
+      - name: Cache Node.js modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: npm ci
+      - name: Create credential file
+        run: gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.LARGE_SECRET_PASSPHRASE}}" --output ~/.clasprc.json .clasprc.json.gpg
+      - name: Create project file
+        run: cp .clasp_production.json .clasp.json
+      - name: Upload files
+        run: npx @google/clasp push --force
+      - name: Deploy application
+        run: |
+          change_log=$(tail -1 version_history | sed -e "s/^[0-9]*[[:blank:]]-[[:blank:]]\(.*\)$/\1/g")
+          npx @google/clasp version ${change_log}
+      - name: Notify slack of CI results
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          author_name: ${{ github.workflow }}
+          username: ${{ env.SLACK_USERNAME }}
+          icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
+          channel: ${{ env.SLACK_CHANNEL }}
+          mention: here
+          if_mention: failure,cancelled
+          text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        if: failure()
+
+  release:
+      needs: deploy
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v2
+        - name: Create Release
+          uses: actions/create-release@v1
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          with:
+            tag_name: ${{ github.ref }}
+            release_name: Release ${{ github.ref }}
+            draft: 'false'
+            prerelease: 'false'
+        - name: Notify slack of CI results
+          uses: 8398a7/action-slack@v3
+          with:
+            status: ${{ job.status }}
+            author_name: ${{ github.workflow }}
+            username: ${{ env.SLACK_USERNAME }}
+            icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
+            channel: ${{ env.SLACK_CHANNEL }}
+            mention: here
+            if_mention: failure,cancelled
+            text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          if: always()

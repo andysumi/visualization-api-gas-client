@@ -10,7 +10,9 @@
     "googleappsscript/googleappsscript": true
   },
   "globals": {
-    "VisualizationAPIClient": false
+    "VisualizationAPIClient": false,
+    "TestCommon": true,
+    "GasTap": false
   },
   "rules": {
     "semi": "warn",
