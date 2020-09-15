@@ -1,4 +1,4 @@
-name: Test
+name: Deploy development
 
 on:
   push:
@@ -25,6 +25,36 @@ jobs:
         run: npm ci
       - name: Run lint check
         run: npm test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache Node.js modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install dependencies
+        run: npm ci
+      - name: Create credential file
+        run: gpg --quiet --batch --yes --decrypt --passphrase="${{ secrets.LARGE_SECRET_PASSPHRASE}}" --output ~/.clasprc.json .clasprc.json.gpg
+      - name: Create project file
+        run: cp .clasp_develop.json .clasp.json
+      - name: Upload files
+        run: npx @google/clasp push --force
+      - name: Deploy application
+        run: |
+          change_log=$(tail -1 version_history | sed -e "s/^[0-9]*[[:blank:]]-[[:blank:]]\(.*\)$/\1/g")
+          npx @google/clasp version ${change_log}
+
+  notify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
       - name: Notify slack of CI results
         uses: 8398a7/action-slack@v3
         with:
