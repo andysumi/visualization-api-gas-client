@@ -69,17 +69,17 @@ jobs:
             draft: 'false'
             prerelease: 'false'
         - name: Notify slack of CI results
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          author_name: ${{ github.workflow }}
-          username: ${{ env.SLACK_USERNAME }}
-          icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
-          channel: ${{ env.SLACK_CHANNEL }}
-          mention: here
-          if_mention: failure,cancelled
-          text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        if: always()
+          uses: 8398a7/action-slack@v3
+          with:
+            status: ${{ job.status }}
+            author_name: ${{ github.workflow }}
+            username: ${{ env.SLACK_USERNAME }}
+            icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
+            channel: ${{ env.SLACK_CHANNEL }}
+            mention: here
+            if_mention: failure,cancelled
+            text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          if: always()

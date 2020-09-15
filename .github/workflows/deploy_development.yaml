@@ -4,6 +4,10 @@ on:
   push:
     branches-ignore:
       - 'master'
+env:
+  SLACK_CHANNEL: '#github_notify'
+  SLACK_USERNAME: 'Github Actions'
+  SLACK_ICON_EMOJI: ':github:'
 
 jobs:
   test:
@@ -30,9 +34,9 @@ jobs:
         with:
           status: ${{ job.status }}
           author_name: ${{ github.workflow }}
-          username: 'Github Actions'
-          icon_emoji: ':githubalt:'
-          channel: '#github_notify'
+          username: ${{ env.SLACK_USERNAME }}
+          icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
+          channel: ${{ env.SLACK_CHANNEL }}
           mention: here
           if_mention: failure,cancelled
           text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
@@ -70,9 +74,9 @@ jobs:
         with:
           status: ${{ job.status }}
           author_name: ${{ github.workflow }}
-          username: 'Github Actions'
-          icon_emoji: ':githubalt:'
-          channel: '#github_notify'
+          username: ${{ env.SLACK_USERNAME }}
+          icon_emoji: ${{ env.SLACK_ICON_EMOJI }}
+          channel: ${{ env.SLACK_CHANNEL }}
           mention: here
           if_mention: failure,cancelled
           text: '<https://github.com/${{ github.repository }}/commit/${{ github.sha }}/checks|${{ job.status }}>: <https://github.com/${{ github.repository }}/actions?query=workflow:${{ github.workflow }}|${{ github.workflow }} Workflow> executed by ${{ github.actor }} in <https://github.com/${{ github.repository }}|${{ github.repository }}>'
