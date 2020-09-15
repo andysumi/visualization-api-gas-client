@@ -1,4 +1,4 @@
-[![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp) !![Deploy development](https://github.com/andysumi/visualization-api-gas-client/workflows/Deploy%20development/badge.svg) !![Deploy production](https://github.com/andysumi/visualization-api-gas-client/workflows/Deploy%20production/badge.svg)
+[![clasp](https://img.shields.io/badge/built%20with-clasp-4285f4.svg)](https://github.com/google/clasp) ![Deploy development](https://github.com/andysumi/visualization-api-gas-client/workflows/Deploy%20development/badge.svg) ![Deploy production](https://github.com/andysumi/visualization-api-gas-client/workflows/Deploy%20production/badge.svg)
 
 # visualization-api-gas-client
 
