@@ -1,3 +1,4 @@
 1 - 新規作成
 3 - getDataObjectメソッド、getDataArrayメソッドを追加
 4 - パラメーターにheadersを追加
+5 - 値がnullの場合を対応
