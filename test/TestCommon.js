@@ -9,7 +9,8 @@ TestCommon = function () {
     { id: 'B', label: '人口(平成22年)', type: 'number',   pattern: '#,##0' },
     { id: 'C', label: '人口(平成27年)', type: 'number',   pattern: '#,##0' },
     { id: 'D', label: '人口増加率',     type: 'number',   pattern: '0.00%' },
-    { id: 'E', label: '更新日',         type: 'datetime', pattern: 'yyyy/MM/dd H:mm:ss' }
+    { id: 'E', label: 'データなし',     type: 'string' },
+    { id: 'F', label: '更新日',         type: 'datetime', pattern: 'yyyy/MM/dd H:mm:ss' }
   ];
 
   this.client = new VisualizationAPIClient(ScriptApp.getOAuthToken(), this.file_.getId());

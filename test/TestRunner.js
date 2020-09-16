@@ -83,6 +83,7 @@ function testGetDataConvertedObject_(test, common) {
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[1].label), '"人口(平成22年)"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[2].label), '"人口(平成27年)"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[3].label), '"人口増加率"を含むこと');
+    t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[4].label), '"データなし"を含むこと');
     t.ok(Object.prototype.hasOwnProperty.call(result[0], columns[4].label), '"更新日"を含むこと');
   });
 
@@ -94,7 +95,8 @@ function testGetDataConvertedObject_(test, common) {
     t.equal(result[0][columns[1].label], 5506000, '"人口(平成22年)"が正しいこと');
     t.equal(result[0][columns[2].label], 5382000, '"人口(平成27年)"が正しいこと');
     t.equal(result[0][columns[3].label], -0.022520886305848142, '"人口増加率"が正しいこと');
-    t.equal(result[0][columns[4].label], '2020/09/15 0:00:00', '"更新日"が正しいこと');
+    t.equal(result[0][columns[4].label], null, '"データなし"が正しいこと');
+    t.equal(result[0][columns[5].label], '2020/09/15 0:00:00', '"更新日"が正しいこと');
   });
 
   test('getDataConvertedObject() - 異常系', function (t) {
@@ -114,13 +116,15 @@ function testGetDataConvertedArray_(test, common) {
   });
 
   test('getDataConvertedArray() - query指定あり', function (t) {
-    var query = 'SELECT * WHERE E >= datetime \'2020-09-16 00:00:00\'';
+    var query = 'SELECT * WHERE F >= datetime \'2020-09-16 00:00:00\'';
     var result = client.getDataConvertedArray(sheet.getSheetId(), query, 1);
     t.equal(result.length, 1, '取得したデータの件数が正しいこと');
     t.equal(result[0][0], '沖縄', '"都道府県"が正しいこと');
     t.equal(result[0][1], 1393000, '"人口(平成22年)"が正しいこと');
     t.equal(result[0][2], 1434000, '"人口(平成27年)"が正しいこと');
     t.equal(result[0][3], 0.02943287867910982, '"人口増加率"が正しいこと');
+    t.equal(result[0][4], null, '"データなし"が正しいこと');
+    t.equal(result[0][5], '2020/09/16 7:47:40', '"更新日"が正しいこと');
   });
 
   test('getDataConvertedArray() - 異常系', function (t) {
