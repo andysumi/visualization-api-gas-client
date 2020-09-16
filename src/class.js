@@ -37,6 +37,12 @@
         var temp = {};
         row.c.forEach(function (column, index) {
           var label = this[index]['label'] || this[index]['id'];
+
+          if (!column) {
+            temp[label] = column;
+            return temp;
+          }
+
           switch (this[index]['type']) {
           case 'date':
           case 'timeofday':
@@ -64,6 +70,8 @@
       var parsedContents = JSON.parse(this.fetch_(this.buildUrlParam_(params)));
       return parsedContents.table.rows.map(function (row) {
         return row.c.map(function (column, index) {
+          if (!column) return column;
+
           switch (this[index]['type']) {
           case 'date':
           case 'timeofday':
